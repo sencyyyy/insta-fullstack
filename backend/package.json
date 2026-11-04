@@ -1,0 +1,17 @@
+{
+  "name": "instagram-backend",
+  "version": "1.0.0",
+  "description": "backend do instagram",
+  "license": "ISC",
+  "author": "",
+  "type": "commonjs",
+  "main": "main.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "dependencies": {
+    "express": "^5.3.0",
+    "jsonwebtoken": "^9.0.3",
+    "sqlite3": "^6.0.1"
+  }
+}
