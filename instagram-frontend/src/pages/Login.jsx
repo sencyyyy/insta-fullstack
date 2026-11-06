@@ -1,5 +1,7 @@
 import Form from "react-bootstrap/Form"
 import Button from 'react-bootstrap/Button'
+
+import  { Navigate } from "react-router-dom"
 import { useState } from "react"
 
 
@@ -7,6 +9,7 @@ function Login({ tokenAccess, apiUrl }) {
     const [username, setUsername] = useState("")
     const [password, setPassword] = useState("")
     const [loginError, setLoginError] = useState(false)
+    const [feedRedirect, setFeedRedirect] = useState(<></>)
     
     async function authenticate() {
         try {
@@ -14,6 +17,7 @@ function Login({ tokenAccess, apiUrl }) {
             const response = await fetch(`${apiUrl}/users/login?user=${username}&password=${password}`)
             const data = await response.json()
             tokenAccess(data)
+            setFeedRedirect(<Navigate to={"/feed"} />)
         } catch(err) {
             setLoginError(true)
             console.error(err)
@@ -38,11 +42,12 @@ function Login({ tokenAccess, apiUrl }) {
                         <Form.Control value={password} onInput={(e) => setPassword(e.target.value)} type="password" placeholder="Insira a senha" />            
                     </Form.Group>
                     <p className="text-danger">
-                        {loginError ? "Crdenciais inválidas!" : ""}
+                        {loginError ? "Credenciais inválidas!" : ""}
                     </p>
                     <Button variant="primary" type="submit">Login</Button>
                 </Form>
             </div>
+            {feedRedirect}
         </div>
         </>
     )
