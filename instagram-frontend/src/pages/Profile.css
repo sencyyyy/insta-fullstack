@@ -1,0 +1,193 @@
+#cabecalho {
+    width: 800px;
+    height: 300px;
+    display: flex;
+}
+
+#destaques {
+    width: 800px;
+    height: 150px;
+    /* background-color: lightpink; */
+    display: inline-flex;
+    align-items: center;
+    overflow: hidden;
+    scroll-behavior: smooth;
+    anchor-name: --destaques;
+}
+
+#destaques::scroll-button(*) {
+    position: absolute;
+    position-anchor: --destaques;
+    align-self: anchor-center;
+    border-radius: 50%;
+    border: none;
+    background: none;
+    color: white;
+    height: 30px;
+    width: 30px;
+    opacity: 50%;
+}
+
+#destaques::scroll-button(*):hover {
+    opacity: 100%;
+}
+
+#destaques::scroll-button(left) {
+    content: url('assets/voltar.png');
+    /* background-image: url('proximo.png'); */
+    right: calc(anchor(left) - 45px);
+}
+
+#destaques::scroll-button(right) {
+    content: url('assets/proximo.png');
+    left: calc(anchor(right) - 45px);
+}
+
+.destacado {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    border-radius: 50%;
+    height: 90%;
+    margin-left: 13px;
+    margin-right: 13px;
+    font-size: 0.8rem;
+
+    img {
+        transition: 0.3s;
+        padding: 2px;
+        border-radius: 50%;
+        height: 77px
+    }
+}
+
+
+/* .destacado img:hover {
+    transition: 0.3s;
+    box-shadow: 0 0 10px #000000;
+    scale: 115%;
+} */
+
+#imagebox {
+    width: 81px;
+    height: 81px;
+    border: 3px solid rgb(207, 207, 207);
+    border-image-outset: 10px;
+    border-radius: 50%;
+}
+
+
+#feed {
+    transition: 0.3s;
+    width: 800px;
+    height: 1000px;
+    /* background-color: rgb(141, 177, 245); */
+    display: grid;
+    grid-template-columns: 266px 266px 266px;
+    grid-template-rows: 355px 355px 355px;
+    gap: 1px;
+}
+
+.feedimg {
+    transition: 0.3s;
+    width: 266px;
+    height: 355px;
+    cursor: pointer;
+}
+
+.feedimg:hover {
+    transition: 0.3s;
+    scale: 105%;
+    box-shadow: 0 0 10px #000000;
+
+}
+
+#fotodeperfil {
+    width: 300px;
+    height: 300px;
+    /* background-color: blanchedalmond; */
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+#fotodeperfil img {
+    height: 200px;
+    border-radius: 50%;
+    border-style: solid; 
+    border-width: 0px;
+    
+
+    mask-clip: padding-box;
+    mask-composite: exclude;
+    
+    padding: 2px;
+}
+
+#fotobox {
+    display: flex;
+    align-items: center;
+    justify-content: center ;
+
+    padding: 5px;
+    width: 210px;
+    height: 210px;
+    background: linear-gradient(#d300c5, #ffc700);
+    border-radius: 50%;
+
+    mask-clip: padding-box;
+    mask-origin: padding-box;
+    mask-image: linear-gradient(white, black);
+    mask-size: cover;
+    mask-composite: subtract;
+}
+
+#username {
+    margin-bottom: 0px;
+}
+
+#textodeperfil {
+    width: 500px;
+    height: 300px;
+    /* background-color: rgb(255, 98, 130); */
+    display: flex;
+    flex-direction: column;
+    justify-content: space-around;
+
+}   
+
+#followb {
+    background-color: rgb(43, 156, 255);
+    color: white;
+    border: none;
+    height: 30px;
+    width: 500px;
+    border-radius: 5px;
+}
+
+#seguidores {
+    display: inline-flex;
+}
+
+#seguidores-texto {
+    margin-right: 20px;
+}
+
+#threads {
+    height: 18px;
+}
+
+#pill {
+    padding: 4px;
+    padding-left: 8px;
+    padding-right: 8px;
+    display: inline-flex;
+    width: fit-content;
+    background-color: lightgray; 
+    border-radius: 15px;
+}
+
+#pill:hover {
+    background-color: rgb(168, 168, 168);
+}
