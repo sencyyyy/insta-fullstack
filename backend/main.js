@@ -16,6 +16,7 @@ db.exec(`
             followers INTEGER,
             following INTEGER,
             name TEXT,
+            profile_picture TEXT,
             bio TEXT
         )
     `)
@@ -25,6 +26,7 @@ db.exec(`
             id INTEGER PRIMARY KEY,
             owner_id INTEGER NOT NULL,
             title TEXT NOT NULL,
+            image TEXT NOT NULL
             description TEXT NOT NULL,
             likes INTEGER
         )       
@@ -88,6 +90,7 @@ app.patch('/api/users', (req, res) => {
     } else {
         if (req.body.name != undefined) db.prepare('UPDATE users SET name = ? WHERE user = ?').run(req.body.name, targetUser)
         if (req.body.bio != undefined) db.prepare('UPDATE users SET bio = ? WHERE user = ?').run(req.body.bio, targetUser)
+        if(req.body.profile_picture != undefined) db.prepare('UPDATE users SET profile_picture = ? WHERE user = ?').run(req.body.profile_picture, targetUser)
         if (req.body.user != undefined) db.prepare('UPDATE users SET user = ? WHERE user = ?').run(req.body.user, targetUser)
 
         const updatedProfile = getUserInfoSql.get(req.body.user == undefined ? targetUser : req.body.user)
