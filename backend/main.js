@@ -1,8 +1,15 @@
 const express = require('express')
 const crypto = require('node:crypto')
 const sqlite = require('node:sqlite')
+const multer = require('multer')
+
 
 const auth = require('./auth.mjs')
+
+const multerProfile = multer({
+    dest: "uploads/profiles/",
+    limits: { fileSize: 30 * 1024 * 1024 }
+})
 
 const app = express()
 app.use(express.json())
@@ -49,6 +56,9 @@ const createPostSql = db.prepare('INSERT INTO posts (owner_id, title, image, des
 const getUserInfoSql = db.prepare('SELECT * FROM users WHERE user = ?')
 const getUserInfoByIdSql = db.prepare('SELECT * FROM users WHERE id = ?')
 const getAllPostsSql = db.prepare('SELECT * FROM posts')
+const getPostByIdSql = db.prepare("SELECT * FROM posts WHERE id = ?")
+
+const likePostSql = db.prepare("UPDATE posts SET likes = likes + 1 WHERE id = ?")
 
 const getAllPostsFromUserSql = db.prepare('SELECT * FROM posts WHERE owner_id = ?')
 const findCredSql = db.prepare('SELECT password FROM auth WHERE user = ?')
@@ -88,10 +98,11 @@ app.get('/api/users/login', (req, res) => {
     }
 })
 
-app.patch('/api/users', (req, res) => {
+app.patch('/api/users', multerProfile.single("file"), (req, res) => {
     const targetUser = auth.validateToken(req.body.token)
     console.log(targetUser)
     console.log(req.body)
+    console.log(req.file)
     if (targetUser == false) {
         res.status(401).send("invalid token")
     } else {
@@ -166,6 +177,11 @@ app.get('/api/posts', (req, res) => {
     } else {
         res.status(401).end()
     }
+})
+
+app.get('/api/posts/:id/like', (req, res) => {
+    likePostSql.run(req.params.id)
+    res.status(200).end()
 })
 
 

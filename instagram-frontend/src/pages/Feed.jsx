@@ -48,6 +48,7 @@ function Feed({ sessionToken, apiUrl }) {
                     ownerId={p.owner_id}
                     image={p.image}
                     likes={p.likes}
+                    postId={p.id}
                 / >
             ))}
         </div>

@@ -22,6 +22,7 @@ function ProfileEdit({ sessionToken, apiUrl  }) {
     const [changedName, setChangedName] = useState("")
     const [changedBio, setChangedBio] = useState("")
     const [changedLink, setChangedLink] = useState("")
+    const [changedPicture, setChangedPicture] = useState("")
 
     const [redirect, setRedirect] = useState(<></>)
 
@@ -47,6 +48,7 @@ function ProfileEdit({ sessionToken, apiUrl  }) {
                 if (changedName != "") changes['name'] = changedName
                 if (changedBio != "") changes['bio'] = changedBio
                 if (changedLink != "") changes['bio_link'] = changedLink
+                if (changedPicture != "") changes['profile_picture'] = changedPicture
                 submitProfileChanges(changes)
                 setRedirect(<Navigate to='/profile' />)
             }}>
@@ -72,7 +74,7 @@ function ProfileEdit({ sessionToken, apiUrl  }) {
 
                     <Form.Group className="mb-3" controlId="formProfilePicture">
                         <Form.Label>Foto de perfil</Form.Label>
-                        <Form.Control type="file" />
+                        <Form.Control type="text" value={changedPicture} onChange={(e) => setChangedPicture(e.target.value)} />
                     </Form.Group>
 
                     <Button variant="primary" type="submit">Salvar</Button>

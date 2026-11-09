@@ -2,14 +2,17 @@ import './Profile.css'
 
 import { useState, useEffect } from 'react'
 import { Navigate } from 'react-router-dom'
+import NavBar from '../components/NavBar'
 
-function Profile({sessionToken, apiUrl}) {
+function Profile({sessionToken, apiUrl, user}) {
     const [userInfo, setUserInfo] = useState({})
     const [redirect, setRedirect] = useState(<></>)
 
     useEffect(() => {
         async function getUserInfo() {
-            const response = await fetch(`${apiUrl}/user?token=${sessionToken}`)
+            let response
+            user ? response = await fetch(`${apiUrl}/user?token=${sessionToken}`)
+            : response = await fetch(`${apiUrl}/users/user`)
             const data = await response.json()
             console.log(data)
             setUserInfo(data)
@@ -19,12 +22,13 @@ function Profile({sessionToken, apiUrl}) {
 
     return (
         <>
+        <NavBar sessionToken={sessionToken} apiUrl={apiUrl} />
         <div className="container-fluid d-flex justify-content-center">
             <div id="conteudo" className="sm:container mt-3" style={{maxWidth: "1000px"}}>
                 <div id="cabecalho">
                     <div id="fotodeperfil">
                         <div id="fotobox">
-                            <img src='https://placehold.co/200x200' alt="Foto de Perfil" />
+                            <img src={userInfo.profile_picture ? userInfo.profile_picture : 'https://placehold.co/200x200'} alt="Foto de Perfil" />
                         </div>
                     </div>
                     <div id="textodeperfil">

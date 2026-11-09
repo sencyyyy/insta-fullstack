@@ -29,13 +29,13 @@ function NavBar({ sessionToken, apiUrl }) {
         <Navbar.Toggle aria-controls="basic-navbar-nav" />
         <Navbar.Collapse id="basic-navbar-nav">
           <Nav className="me-auto">
-            <Nav.Link href="#home">Home</Nav.Link>
-            <Nav.Link href="#link">Link</Nav.Link>
+            <Link className='nav-link'>Feed</Link>
+            <Link className='nav-link' to='/newpost'>Novo post</Link>
           </Nav>
         </Navbar.Collapse>
         </div>
         <div className='d-inline-flex'>
-          <img src={userInfo.profile_picture ? userInfo.profile_picture : 'https://placehold.co/32x32'} className='rounded-circle mx-3' />
+          <img width={32} height={32} src={userInfo.profile_picture ? userInfo.profile_picture : 'https://placehold.co/32x32'} className='rounded-circle mx-3' />
 
             <NavDropdown title={userInfo.user} id="basic-nav-dropdown">
               

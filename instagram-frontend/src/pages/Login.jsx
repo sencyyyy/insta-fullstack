@@ -1,7 +1,7 @@
 import Form from "react-bootstrap/Form"
 import Button from 'react-bootstrap/Button'
 
-import  { Navigate } from "react-router-dom"
+import  { Navigate, Link } from "react-router-dom"
 import { useState } from "react"
 
 
@@ -45,6 +45,7 @@ function Login({ tokenAccess, apiUrl }) {
                         {loginError ? "Credenciais inválidas!" : ""}
                     </p>
                     <Button variant="primary" type="submit">Login</Button>
+                    <p className="mt-2">Nao tem conta? <Link to="/register">registre-se</Link></p>
                 </Form>
             </div>
             {feedRedirect}
