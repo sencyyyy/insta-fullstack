@@ -1,0 +1,14 @@
+.btn.btn-secondary {
+    --bs-btn-color: #212529;
+    --bs-btn-bg: #dddddd;
+    --bs-btn-border-color: #dddddd;
+    --bs-btn-hover-color: #212529;
+    --bs-btn-hover-bg: #c8c8c8;
+    --bs-btn-hover-border-color: #c8c8c8;
+    --bs-btn-active-color: #212529;
+    --bs-btn-active-bg: #c8c8c8;
+    --bs-btn-active-border-color: #c8c8c8;
+    --bs-btn-disabled-color: #212529;
+    --bs-btn-disabled-bg: #dddddd;
+    --bs-btn-disabled-border-color: #dddddd;
+}

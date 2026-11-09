@@ -17,7 +17,8 @@ db.exec(`
             following INTEGER,
             name TEXT,
             profile_picture TEXT,
-            bio TEXT
+            bio TEXT,
+            bio_link TEXT
         )
     `)
 
@@ -26,7 +27,7 @@ db.exec(`
             id INTEGER PRIMARY KEY,
             owner_id INTEGER NOT NULL,
             title TEXT NOT NULL,
-            image TEXT NOT NULL
+            image TEXT NOT NULL,
             description TEXT NOT NULL,
             likes INTEGER
         )       
@@ -41,10 +42,15 @@ db.exec(`
 
 const createUserSql = db.prepare('INSERT INTO users (user, followers, following) VALUES (?, 0, 0)')
 const createCredSql = db.prepare('INSERT INTO auth (user, password) VALUES (?, ?)')
+const createPostSql = db.prepare('INSERT INTO posts (owner_id, title, image, description, likes) VALUES (?, ?, ?, ?, 0)')
 
 // const updateUserSql = db.prepare('UPDATE users SET ? = ? WHERE user = ?') // run(variavel, valor, user)
 
 const getUserInfoSql = db.prepare('SELECT * FROM users WHERE user = ?')
+const getUserInfoByIdSql = db.prepare('SELECT * FROM users WHERE id = ?')
+const getAllPostsSql = db.prepare('SELECT * FROM posts')
+
+const getAllPostsFromUserSql = db.prepare('SELECT * FROM posts WHERE owner_id = ?')
 const findCredSql = db.prepare('SELECT password FROM auth WHERE user = ?')
 
 
@@ -85,6 +91,7 @@ app.get('/api/users/login', (req, res) => {
 app.patch('/api/users', (req, res) => {
     const targetUser = auth.validateToken(req.body.token)
     console.log(targetUser)
+    console.log(req.body)
     if (targetUser == false) {
         res.status(401).send("invalid token")
     } else {
@@ -92,6 +99,7 @@ app.patch('/api/users', (req, res) => {
         if (req.body.bio != undefined) db.prepare('UPDATE users SET bio = ? WHERE user = ?').run(req.body.bio, targetUser)
         if(req.body.profile_picture != undefined) db.prepare('UPDATE users SET profile_picture = ? WHERE user = ?').run(req.body.profile_picture, targetUser)
         if (req.body.user != undefined) db.prepare('UPDATE users SET user = ? WHERE user = ?').run(req.body.user, targetUser)
+        if (req.body.bio_link != undefined) db.prepare('UPDATE users SET bio_link = ? WHERE user = ?').run(req.body.bio_link, targetUser)
 
         const updatedProfile = getUserInfoSql.get(req.body.user == undefined ? targetUser : req.body.user)
         res.json(updatedProfile)
@@ -99,9 +107,14 @@ app.patch('/api/users', (req, res) => {
 })
 
 app.get('/api/users/:user', (req, res) => {
-    const userInfo = getUserInfoSql.get(req.params.user)
+    let userInfo = getUserInfoSql.get(req.params.user)
     if (userInfo == undefined) {
-        res.status(404).end()
+        userInfo = getUserInfoByIdSql.get(req.params.user)
+        if (userInfo != undefined) {
+            res.json(userInfo)
+        } else {
+            res.status(404).end()
+        }
     } else {
         res.json(userInfo)
     }
@@ -121,6 +134,37 @@ app.get('/api/user', (req, res) => {
         } else {
             res.json(userInfo)
         }
+    }
+})
+
+app.post('/api/posts', (req, res) => {
+    console.log("=== start POST /api/posts ===")
+    const userName = auth.validateToken(req.body.token)
+    console.log(`userName = ${userName}`)
+    if (userName != false) {
+        const userInfo = getUserInfoSql.get(userName)
+        console.log('userInfo = ', userInfo)
+        const postOwnerId = getUserInfoSql.get(userName).id
+        const postTitle = req.body.title
+        const postImage = req.body.image
+        const postDescription = req.body.description
+        
+        createPostSql.run(postOwnerId, postTitle, postImage, postDescription)
+        res.status(201).end()
+        console.log("=== end POST /api/posts ===")
+    } else {
+        res.status(401).end()
+        console.log("=== end POST /api/posts ===")
+    }
+})
+
+app.get('/api/posts', (req, res) => {
+    console.log("=== start GET /api/posts ===")
+    const userName = auth.validateToken(req.query.token)
+    if (userName != false) {
+        res.json(getAllPostsSql.all())
+    } else {
+        res.status(401).end()
     }
 })
 

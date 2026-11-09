@@ -16,13 +16,20 @@ export function createToken(user) {
 }
 
 export function validateToken(token) {
+    console.log("=== start validateToken() ===")
+    console.log(`token = ${token}`)
     console.log(tokenUserMap)
+    console.log(tokenUserMap[token])
     if (tokenUserMap[token] == undefined) return false
 
     const userToken = tokenUserMap[token]
     if(userToken.expires > Date.now()) {
+        console.log(`userToken.user = ${userToken.user}`)
+        console.log("=== end validateToken() ===")
         return userToken.user
     } else {
+        console.log(false)
+        console.log("=== end validateToken() ===")
         return false
     }
 }
