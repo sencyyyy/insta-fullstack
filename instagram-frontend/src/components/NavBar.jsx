@@ -44,11 +44,11 @@ function NavBar({ sessionToken, apiUrl }) {
             <NavDropdown title={userInfo.user} id="basic-nav-dropdown">
               
                 <Link className='dropdown-item' to='/profile'>Perfil</Link>
-              <NavDropdown.Item href="#action/3.2">
-                Another action
-              </NavDropdown.Item>
               <NavDropdown.Divider />
-              <Link className='dropdown-item text-danger'>
+              <Link className='dropdown-item text-danger' onClick={() => {
+                localStorage.clear()
+                window.location.reload()
+              }}>
                 Sair
               </Link>
             </NavDropdown>

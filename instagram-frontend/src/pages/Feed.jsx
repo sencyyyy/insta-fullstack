@@ -2,6 +2,7 @@ import Post from '../components/Post'
 import NavBar from '../components/NavBar'
 
 import { useState, useEffect } from 'react'
+import { Navigate } from 'react-router-dom'
 
 function Feed({ sessionToken, apiUrl }) {
     const [posts, setPosts] = useState([])
@@ -34,7 +35,7 @@ function Feed({ sessionToken, apiUrl }) {
 
     if (!sessionToken) {
         return (
-            <h1>Por favor faça login!</h1>
+            <Navigate to="/login" />
         )
     }
 
