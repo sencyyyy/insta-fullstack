@@ -4,29 +4,39 @@ import NavBar from '../components/NavBar'
 import { useState, useEffect } from 'react'
 
 function Feed({ sessionToken, apiUrl }) {
-    // if (sessionToken == "") {
-    //     return (
-    //         <h1>Por favor faça login!</h1>
-    //     )
-    // }
-
     const [posts, setPosts] = useState([])
     const [loading, setLoading] = useState(false)
     const [error, setError] = useState(null)
 
 
     useEffect(() => {
+        if (!sessionToken) return
         async function getPosts() {
-            const response = await fetch(`${apiUrl}/posts?token=${sessionToken}`)
-            const data = await response.json()
-            console.log(data)
-            setPosts(data)
+            setLoading(true)
+            setError(null)
+            try {
+                const response = await fetch(`${apiUrl}/posts?token=${sessionToken}`)
+                if (!response.ok) throw new Error("failed to load feed")
+                const data = await response.json()
+                setPosts(data)
+            } catch (err) {
+                console.error(err)
+                setError(err)
+            } finally {
+                setLoading(false)
+            }
         }
     
         getPosts()
 
     }, [apiUrl, sessionToken])
     
+
+    if (!sessionToken) {
+        return (
+            <h1>Por favor faça login!</h1>
+        )
+    }
 
     if (loading) {
         return (
@@ -38,6 +48,7 @@ function Feed({ sessionToken, apiUrl }) {
         <>
         <NavBar sessionToken={sessionToken} apiUrl={apiUrl} />
         <div className="container-sm" >
+            {error ? <p className="text-danger">Não foi possível carregar o feed.</p> : ""}
             {posts.map((p) => (
                 <Post
                     key={p.id}

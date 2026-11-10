@@ -22,6 +22,7 @@ function Register({ apiUrl }) {
                     "Content-Type": "application/json"
                 }
             })
+            if (!response.ok) throw new Error("failed to register")
             return true
         } catch (err) {
             console.error(err)
@@ -34,9 +35,9 @@ function Register({ apiUrl }) {
         <>
         <div className="vh-100 container-sm d-flex justify-content-center align-items-center">
             <div className="w-50 p-3 border rounded" >
-                <Form onSubmit={(e) => {
+                <Form onSubmit={async (e) => {
                     e.preventDefault()
-                    if (submitRegistration()) {
+                    if (await submitRegistration()) {
                         setRedirect(<Navigate to="/login" />)
                     }
                 }}>

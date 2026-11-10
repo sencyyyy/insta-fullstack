@@ -33,3 +33,11 @@ export function validateToken(token) {
         return false
     }
 }
+
+export function renameUser(oldName, newName) {
+    for (const token of Object.keys(tokenUserMap)) {
+        if (tokenUserMap[token].user == oldName) {
+            tokenUserMap[token].user = newName
+        }
+    }
+}

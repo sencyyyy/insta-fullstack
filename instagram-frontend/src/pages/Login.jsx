@@ -14,7 +14,12 @@ function Login({ tokenAccess, apiUrl }) {
     async function authenticate() {
         try {
             setLoginError(false)
-            const response = await fetch(`${apiUrl}/users/login?user=${username}&password=${password}`)
+            const params = new URLSearchParams({ user: username, password: password })
+            const response = await fetch(`${apiUrl}/users/login?${params}`)
+            if (!response.ok) {
+                setLoginError(true)
+                return
+            }
             const data = await response.json()
             tokenAccess(data)
             setFeedRedirect(<Navigate to={"/feed"} />)

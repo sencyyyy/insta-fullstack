@@ -12,9 +12,13 @@ function NavBar({ sessionToken, apiUrl }) {
 
   useEffect(() => {
     async function fetchUserData() {
+      if (!sessionToken) {
+        setUserInfo({})
+        return
+      }
       const response = await fetch(`${apiUrl}/user?token=${sessionToken}`)
+      if (!response.ok) return
       const data = await response.json()
-      console.log(await response)
       setUserInfo(data)
     }
 
@@ -43,11 +47,10 @@ function NavBar({ sessionToken, apiUrl }) {
               <NavDropdown.Item href="#action/3.2">
                 Another action
               </NavDropdown.Item>
-              <NavDropdown.Item href="#action/3.3">Something</NavDropdown.Item>
               <NavDropdown.Divider />
-              <NavDropdown.Item href="#action/3.4">
-                Separated link
-              </NavDropdown.Item>
+              <Link className='dropdown-item text-danger'>
+                Sair
+              </Link>
             </NavDropdown>
         </div>
       </Container>

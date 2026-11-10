@@ -63,54 +63,70 @@ const findCredSql = db.prepare('SELECT password FROM auth WHERE user = ?')
 
 
 app.post('/api/users/new', (req, res) => {
-    if (req.body.user == undefined || req.body.password == undefined) {
+    if (!req.body.user || !req.body.password) {
         res.status(400).send("Please provide 'user' and 'password' fields")
-    } else {
-        createUserSql.run(req.body.user)
-        const passwordHash = crypto.createHash('sha512')
-        passwordHash.update(req.body.password)
-        createCredSql.run(req.body.user, passwordHash.digest('hex'))
-        res.status(200).end()
+        return
     }
+    if (getUserInfoSql.get(req.body.user) != undefined) {
+        res.status(409).send("user already exists")
+        return
+    }
+    createUserSql.run(req.body.user)
+    const passwordHash = crypto.createHash('sha512')
+    passwordHash.update(req.body.password)
+    createCredSql.run(req.body.user, passwordHash.digest('hex'))
+    res.status(200).end()
 })
 
 app.get('/api/users/login', (req, res) => {
-    console.log(req.query)
-    if (req.query.user == undefined || req.query.user == undefined) {
+    if (req.query.user == undefined || req.query.password == undefined) {
         res.status(400).send("must provide 'user' and 'password' fields")
+        return
+    }
+    const cred = findCredSql.get(req.query.user)
+    if (cred == undefined) {
+        res.status(404).send("invalid credentials")
+        return
+    }
+    const passwordHash = crypto.createHash('sha512')
+    passwordHash.update(req.query.password)
+
+    if (passwordHash.digest('hex') == cred.password) {
+        res.json(auth.createToken(req.query.user))
     } else {
-        const passwordHash = crypto.createHash('sha512')
-        passwordHash.update(req.query.password)
-        let actualPassword = findCredSql.get(req.query.user)["password"]
-        console.log(actualPassword)
-
-        if (passwordHash.digest('hex') == actualPassword) {
-            res.json(auth.createToken(req.query.user))
-        } else {
-            res.status(404).send("invalid credentials")
-        }
-        
-
+        res.status(404).send("invalid credentials")
     }
 })
 
 app.patch('/api/users', (req, res) => {
     const targetUser = auth.validateToken(req.body.token)
-    console.log(targetUser)
-    console.log(req.body)
-    console.log(req.file)
     if (targetUser == false) {
         res.status(401).send("invalid token")
-    } else {
-        if (req.body.name != undefined) db.prepare('UPDATE users SET name = ? WHERE user = ?').run(req.body.name, targetUser)
-        if (req.body.bio != undefined) db.prepare('UPDATE users SET bio = ? WHERE user = ?').run(req.body.bio, targetUser)
-        if(req.body.profile_picture != undefined) db.prepare('UPDATE users SET profile_picture = ? WHERE user = ?').run(req.body.profile_picture, targetUser)
-        if (req.body.user != undefined) db.prepare('UPDATE users SET user = ? WHERE user = ?').run(req.body.user, targetUser)
-        if (req.body.bio_link != undefined) db.prepare('UPDATE users SET bio_link = ? WHERE user = ?').run(req.body.bio_link, targetUser)
-
-        const updatedProfile = getUserInfoSql.get(req.body.user == undefined ? targetUser : req.body.user)
-        res.json(updatedProfile)
+        return
     }
+
+    let newUserName = targetUser
+    if (req.body.user != undefined && req.body.user != targetUser) {
+        if (getUserInfoSql.get(req.body.user) != undefined) {
+            res.status(409).send("user already exists")
+            return
+        }
+        newUserName = req.body.user
+    }
+
+    if (req.body.name != undefined) db.prepare('UPDATE users SET name = ? WHERE user = ?').run(req.body.name, targetUser)
+    if (req.body.bio != undefined) db.prepare('UPDATE users SET bio = ? WHERE user = ?').run(req.body.bio, targetUser)
+    if(req.body.profile_picture != undefined) db.prepare('UPDATE users SET profile_picture = ? WHERE user = ?').run(req.body.profile_picture, targetUser)
+    if (req.body.bio_link != undefined) db.prepare('UPDATE users SET bio_link = ? WHERE user = ?').run(req.body.bio_link, targetUser)
+
+    if (newUserName != targetUser) {
+        db.prepare('UPDATE users SET user = ? WHERE user = ?').run(newUserName, targetUser)
+        db.prepare('UPDATE auth SET user = ? WHERE user = ?').run(newUserName, targetUser)
+        auth.renameUser(targetUser, newUserName)
+    }
+
+    const updatedProfile = getUserInfoSql.get(newUserName)
+    res.json(updatedProfile)
 })
 
 app.get('/api/users/:user', (req, res) => {
@@ -129,40 +145,43 @@ app.get('/api/users/:user', (req, res) => {
 
 app.get('/api/user', (req, res) => {
     if (req.query.token == undefined) {
-        res.status(401)
+        res.status(401).end()
+        return
+    }
+    const userName = auth.validateToken(req.query.token)
+    if (userName === false) {
+        res.status(404).end()
+        return
+    }
+    const userInfo = getUserInfoSql.get(userName)
+    if (userInfo == undefined) {
+        res.status(404).end()
     } else {
-        const userName = auth.validateToken(req.query.token)
-        if (userName === false) {
-            res.status(404).end()
-        }
-        const userInfo = getUserInfoSql.get(userName)
-        if (userInfo == undefined) {
-            res.status(404).end()
-        } else {
-            res.json(userInfo)
-        }
+        res.json(userInfo)
     }
 })
 
 app.post('/api/posts', (req, res) => {
-    console.log("=== start POST /api/posts ===")
     const userName = auth.validateToken(req.body.token)
-    console.log(`userName = ${userName}`)
-    if (userName != false) {
-        const userInfo = getUserInfoSql.get(userName)
-        console.log('userInfo = ', userInfo)
-        const postOwnerId = getUserInfoSql.get(userName).id
-        const postTitle = req.body.title
-        const postImage = req.body.image
-        const postDescription = req.body.description
-        
-        createPostSql.run(postOwnerId, postTitle, postImage, postDescription)
-        res.status(201).end()
-        console.log("=== end POST /api/posts ===")
-    } else {
+    if (userName == false) {
         res.status(401).end()
-        console.log("=== end POST /api/posts ===")
+        return
     }
+    if (!req.body.title || !req.body.image || !req.body.description) {
+        res.status(400).send("must provide 'title', 'image' and 'description' fields")
+        return
+    }
+    const userInfo = getUserInfoSql.get(userName)
+    if (userInfo == undefined) {
+        res.status(404).end()
+        return
+    }
+    const postTitle = req.body.title
+    const postImage = req.body.image
+    const postDescription = req.body.description
+
+    createPostSql.run(userInfo.id, postTitle, postImage, postDescription)
+    res.status(201).end()
 })
 
 app.get('/api/posts', (req, res) => {
@@ -175,7 +194,12 @@ app.get('/api/posts', (req, res) => {
     }
 })
 
-app.get('/api/posts/:id/like', (req, res) => {
+app.post('/api/posts/:id/like', (req, res) => {
+    const userName = auth.validateToken(req.body.token)
+    if (userName == false) {
+        res.status(401).end()
+        return
+    }
     likePostSql.run(req.params.id)
     res.status(200).end()
 })

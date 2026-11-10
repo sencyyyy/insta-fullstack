@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react"
+import { useState } from "react"
 import NavBar from "./NavBar"
 
 import Form from "react-bootstrap/Form"
@@ -11,17 +11,7 @@ function Newpost({ sessionToken, apiUrl }) {
     const [postImage, setPostImage] = useState('')
     const [postDescription, setPostDescription] = useState("")
     const [redirect, setRedirect] = useState(<></>)
-    const [userInfo, setUserInfo] = useState(null)
     const [error, setError] = useState(null)
-
-    useEffect(() => {
-        async function getUserInfo() {
-            const response = await fetch(`${apiUrl}/user?token=${sessionToken}`)
-            const data = await response.json()
-            setUserInfo(data)
-        }
-        getUserInfo()
-    }, [sessionToken, apiUrl])
 
     async function sendPost() { 
         try {
@@ -31,13 +21,13 @@ function Newpost({ sessionToken, apiUrl }) {
                     token: sessionToken,
                     title: postTitle,
                     image: postImage,
-                    description: postDescription,
-                    owner_id: userInfo.id
+                    description: postDescription
                 }),
                 headers: {
                     "Content-Type": "application/json"
                 }
             })
+            if (!response.ok) throw new Error("failed to create post")
             return true
         } catch (err) {
             console.error(err)
@@ -51,9 +41,9 @@ function Newpost({ sessionToken, apiUrl }) {
         <NavBar sessionToken={sessionToken} apiUrl={apiUrl} />
         <div className="vh-100 container-sm d-flex justify-content-center align-items-center">
             <div className="w-50 p-3 border rounded" >
-                <Form onSubmit={(e) => {
+                <Form onSubmit={async (e) => {
                     e.preventDefault()
-                    if (sendPost()) setRedirect(<Navigate to='/feed' />)
+                    if (await sendPost()) setRedirect(<Navigate to='/feed' />)
                 }}>
                     <Form.Group className="mb-3" controlId="formUser">
                         <Form.Label>Imagem</Form.Label>
