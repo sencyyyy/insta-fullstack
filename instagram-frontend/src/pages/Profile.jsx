@@ -11,8 +11,8 @@ function Profile({sessionToken, apiUrl, user}) {
     useEffect(() => {
         async function getUserInfo() {
             let response
-            user ? response = await fetch(`${apiUrl}/user?token=${sessionToken}`)
-            : response = await fetch(`${apiUrl}/users/user`)
+            user ? response = await fetch(`${apiUrl}/users/${user}`)
+            : response = await fetch(`${apiUrl}/user?token=${sessionToken}`)
             const data = await response.json()
             console.log(data)
             setUserInfo(data)

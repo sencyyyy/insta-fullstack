@@ -1,18 +1,14 @@
 const express = require('express')
 const crypto = require('node:crypto')
 const sqlite = require('node:sqlite')
-const multer = require('multer')
+const cors = require('cors')
 
 
 const auth = require('./auth.mjs')
 
-const multerProfile = multer({
-    dest: "uploads/profiles/",
-    limits: { fileSize: 30 * 1024 * 1024 }
-})
-
 const app = express()
 app.use(express.json())
+app.use(cors())
 const db = new sqlite.DatabaseSync("database.db")
 
 // Inicializando o banco de dados
@@ -98,7 +94,7 @@ app.get('/api/users/login', (req, res) => {
     }
 })
 
-app.patch('/api/users', multerProfile.single("file"), (req, res) => {
+app.patch('/api/users', (req, res) => {
     const targetUser = auth.validateToken(req.body.token)
     console.log(targetUser)
     console.log(req.body)
